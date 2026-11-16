@@ -671,6 +671,19 @@ body.bbopen{overflow:hidden}
 .sc .link,.link{font-weight:600}
 .lang a{letter-spacing:0}
 
+/* ================= round 11 ================= */
+/* no footer / separator text strips anywhere */
+.foot,.endfoot,.tzf,.pgsep,.nextpg .nplab{display:none!important}
+/* landing CTA arrow points down */
+.ctal .ar{display:inline-block;transition:transform .25s}
+.ctal:hover .ar{transform:translateY(.12em)}
+/* copy e-mail from the contact box */
+.cmcopy{margin-top:14px;align-self:flex-start;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:8px 16px;border-radius:999px;font-weight:600;font-size:14px;color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink);transition:background .2s,color .2s}
+.cmcopy:hover,.cmcopy.done{background:var(--ink);color:#1F2624}
+.cmcopy .cmi{font-size:16px;line-height:1}
+.cside{display:flex;flex-direction:column}
+#cmail{user-select:all;-webkit-user-select:all}
+
 </style>
 </head>
 <body>
@@ -757,6 +770,7 @@ const UI = {
   bbL:["Brandbook de ANdevant","Brandbook d'ANdevant","ANdevant brandbook"],
   bbPrev:["Diapositiva anterior","Diapositiva anterior","Previous slide"], bbNext:["Diapositiva siguiente","Diapositiva següent","Next slide"],
   bbBig:["Verlo en grande","Fes-ho gran","View large"], bbClose:["Cerrar","Tanca","Close"],
+  fWhere:["Empordà (el Alt)","Empordà (l'Alt)","Empordà (the Alt one)"],
   k3In:["Acercar","Apropar","Zoom in"], k3Out:["Alejar","Allunyar","Zoom out"]
 };
 const EDU=[
@@ -997,7 +1011,7 @@ function navHTML(l,page){
   return `<header class="nav"><div class="wrap"><a class="brand" href="${href(l,'home')}">POL ESTEBA</a>
   <nav class="nav-r">${lk(0,'projects')}${lk(1,'about')}${lk(2,'contact')}<div class="lang" role="group" aria-label="Language">${sw}</div></nav></div></header>`;
 }
-const ctaHTML=(l)=>`<section class="wrap cta"><a class="ctal" href="${href(l,'contact')}"><h2 class="display">${pick(UI.ctaH,l)} <span class="ar">↗</span></h2></a>
+const ctaHTML=(l)=>`<section class="wrap cta"><a class="ctal" href="${href(l,'contact')}"><h2 class="display">${pick(UI.ctaH,l)} <span class="ar">↓</span></h2></a>
     <div class="foot mono"><span style="font-weight:700">POL ESTEBA</span><span>Vilafant, Girona</span><span>© 2026</span></div></section>`;
 function contactHTML(l){
   return `<main><section class="wrap phd ctph"><span class="mono">/ ${pick(UI.contactLabel,l)}</span><h1 class="display">${pick(UI.contactH,l)}</h1>
@@ -1019,7 +1033,8 @@ function contactHTML(l){
       <pre id="cmsg"></pre>
       <div class="fact"><button type="button" class="btn" id="cfcopy">${pick(UI.fCopy,l)}</button><button type="button" class="btn ghost" id="cfcopym">${pick(UI.fCopyMail,l)}</button><button type="button" class="btn ghost" id="cfedit">${pick(UI.fEdit,l)}</button></div>
     </div>
-    <aside class="cside"><span class="mono">${pick(UI.fOr,l)}</span><b id="cmail">polesteba07@gmail.com</b><span class="mono">Vilafant, Girona</span></aside>
+    <aside class="cside"><span class="mono">${pick(UI.fOr,l)}</span><b id="cmail">polesteba07@gmail.com</b><span class="mono">${pick(UI.fWhere,l)}</span>
+      <button type="button" class="cmcopy" id="cmcopy" aria-describedby="cmail"><span class="cmi" aria-hidden="true">⧉</span> <span class="cml">${pick(UI.fCopyMail,l)}</span></button></aside>
   </section></main>`;
 }
 const pfootHTML=(l)=>`<footer class="pfoot"><div class="wrap mono"><span style="font-weight:700">POL ESTEBA</span><a href="${href(l,'contact')}">${pick(UI.talk,l)} ↗</a><span>© 2026</span></div></footer>`;
@@ -1247,6 +1262,11 @@ function initForm(l){
   });
   document.getElementById('cfcopy').addEventListener('click',e=>copy(body,e.currentTarget));
   document.getElementById('cfcopym').addEventListener('click',e=>copy('polesteba07@gmail.com',e.currentTarget));
+  const cm=document.getElementById('cmcopy');
+  if(cm) cm.addEventListener('click',()=>{ const lab=cm.querySelector('.cml'), orig=lab.textContent;
+    const ok=()=>{ lab.textContent=pick(UI.fCopied,l); cm.classList.add('done'); setTimeout(()=>{lab.textContent=orig; cm.classList.remove('done');},1600); };
+    const sel=()=>{ const el=document.getElementById('cmail'), r=document.createRange(); r.selectNodeContents(el); const s=getSelection(); s.removeAllRanges(); s.addRange(r); };
+    try{ navigator.clipboard.writeText('polesteba07@gmail.com').then(ok,()=>{sel();}); }catch(x){ sel(); } });
   document.getElementById('cfedit').addEventListener('click',()=>{done.hidden=true;f.hidden=false;});
 }
 
@@ -1451,6 +1471,15 @@ function collectRV(){
 }
 // cursor light on every project hero
 (function phLoop(){ document.querySelectorAll('.ph').forEach(el=>{ const r=el.getBoundingClientRect(); if(r.bottom<0||r.top>innerHeight) return; el.style.setProperty('--mx',(cx-r.left)+'px'); el.style.setProperty('--my',(cy-r.top)+'px'); }); requestAnimationFrame(phLoop); })();
+// the landing CTA goes straight to the contact form
+document.addEventListener('click',e=>{
+  const a=e.target.closest('a.ctal'); if(!a) return; e.preventDefault(); e.stopPropagation();
+  const f=document.querySelector('.cform'); if(!f) return;
+  const target=()=>Math.min(f.getBoundingClientRect().top+scrollY-navH()-24, document.documentElement.scrollHeight-innerHeight);
+  history.replaceState(null,'',href(state.lang,'contact')); state.page='contact'; setNav('contact'); lockSpy(1600);
+  window.scrollTo({top:target(),behavior:reduce?'instant':'smooth'});
+  setTimeout(()=>{ window.scrollTo({top:target(),behavior:'instant'}); const x=document.querySelector('#cf input'); if(x) x.focus({preventScroll:true}); }, reduce?0:900);
+},true);
 
 render();
 </script>
