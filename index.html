@@ -677,12 +677,23 @@ body.bbopen{overflow:hidden}
 /* landing CTA arrow points down */
 .ctal .ar{display:inline-block;transition:transform .25s}
 .ctal:hover .ar{transform:translateY(.12em)}
-/* copy e-mail from the contact box */
-.cmcopy{margin-top:14px;align-self:flex-start;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:8px 16px;border-radius:999px;font-weight:600;font-size:14px;color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink);transition:background .2s,color .2s}
-.cmcopy:hover,.cmcopy.done{background:var(--ink);color:#1F2624}
-.cmcopy .cmi{font-size:16px;line-height:1}
+/* copy e-mail from the contact box: icon button next to the address */
 .cside{display:flex;flex-direction:column}
+.cmrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:relative}
+.cmcopy{width:44px;height:44px;flex:0 0 44px;display:grid;place-items:center;border-radius:12px;color:var(--soft);background:transparent;transition:background .2s,color .2s}
+.cmcopy svg{width:22px;height:22px;grid-area:1/1}
+.cmcopy .ic-ok{opacity:0;transform:scale(.6);transition:opacity .2s,transform .2s}
+.cmcopy .ic-copy{transition:opacity .2s}
+.cmcopy:hover{background:rgba(238,236,228,.1);color:var(--ink)}
+.cmcopy.done{color:#94D29A}
+.cmcopy.done .ic-copy{opacity:0}.cmcopy.done .ic-ok{opacity:1;transform:none}
+.cmok{font-weight:600;font-size:13px;color:#94D29A}
 #cmail{user-select:all;-webkit-user-select:all}
+.cmrow{flex-wrap:nowrap;gap:6px}
+.cmrow #cmail{min-width:0;overflow-wrap:anywhere}
+.cmcopy{width:40px;height:40px;flex:0 0 40px;margin-right:-8px}
+.cmok{position:absolute;left:0;top:100%;margin-top:4px}
+.cside{padding-bottom:34px}
 
 </style>
 </head>
@@ -1033,8 +1044,7 @@ function contactHTML(l){
       <pre id="cmsg"></pre>
       <div class="fact"><button type="button" class="btn" id="cfcopy">${pick(UI.fCopy,l)}</button><button type="button" class="btn ghost" id="cfcopym">${pick(UI.fCopyMail,l)}</button><button type="button" class="btn ghost" id="cfedit">${pick(UI.fEdit,l)}</button></div>
     </div>
-    <aside class="cside"><span class="mono">${pick(UI.fOr,l)}</span><b id="cmail">polesteba07@gmail.com</b><span class="mono">${pick(UI.fWhere,l)}</span>
-      <button type="button" class="cmcopy" id="cmcopy" aria-describedby="cmail"><span class="cmi" aria-hidden="true">⧉</span> <span class="cml">${pick(UI.fCopyMail,l)}</span></button></aside>
+    <aside class="cside"><span class="mono">${pick(UI.fOr,l)}</span><div class="cmrow"><b id="cmail">polesteba07@gmail.com</b><button type="button" class="cmcopy" id="cmcopy" aria-label="${pick(UI.fCopyMail,l)}" title="${pick(UI.fCopyMail,l)}"><svg class="ic-copy" viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="8.5" width="12" height="12" rx="3.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M15.5 8.5V6.7A3.2 3.2 0 0 0 12.3 3.5H6.7A3.2 3.2 0 0 0 3.5 6.7v5.6a3.2 3.2 0 0 0 3.2 3.2h1.8" fill="none" stroke="currentColor" stroke-width="1.8"/></svg><svg class="ic-ok" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><span class="cmok" role="status" aria-live="polite"></span></div></aside>
   </section></main>`;
 }
 const pfootHTML=(l)=>`<footer class="pfoot"><div class="wrap mono"><span style="font-weight:700">POL ESTEBA</span><a href="${href(l,'contact')}">${pick(UI.talk,l)} ↗</a><span>© 2026</span></div></footer>`;
@@ -1263,8 +1273,8 @@ function initForm(l){
   document.getElementById('cfcopy').addEventListener('click',e=>copy(body,e.currentTarget));
   document.getElementById('cfcopym').addEventListener('click',e=>copy('polesteba07@gmail.com',e.currentTarget));
   const cm=document.getElementById('cmcopy');
-  if(cm) cm.addEventListener('click',()=>{ const lab=cm.querySelector('.cml'), orig=lab.textContent;
-    const ok=()=>{ lab.textContent=pick(UI.fCopied,l); cm.classList.add('done'); setTimeout(()=>{lab.textContent=orig; cm.classList.remove('done');},1600); };
+  if(cm) cm.addEventListener('click',()=>{ const st=cm.parentNode.querySelector('.cmok');
+    const ok=()=>{ cm.classList.add('done'); st.textContent=pick(UI.fCopied,l); setTimeout(()=>{cm.classList.remove('done'); st.textContent='';},1600); };
     const sel=()=>{ const el=document.getElementById('cmail'), r=document.createRange(); r.selectNodeContents(el); const s=getSelection(); s.removeAllRanges(); s.addRange(r); };
     try{ navigator.clipboard.writeText('polesteba07@gmail.com').then(ok,()=>{sel();}); }catch(x){ sel(); } });
   document.getElementById('cfedit').addEventListener('click',()=>{done.hidden=true;f.hidden=false;});
