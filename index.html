@@ -695,6 +695,19 @@ body.bbopen{overflow:hidden}
 .cmok{position:absolute;left:0;top:100%;margin-top:4px}
 .cside{padding-bottom:34px}
 
+/* ================= round 12: phone arrows follow the real text ================= */
+svg.dynlink{position:absolute;left:0;top:0;pointer-events:none;overflow:visible;z-index:2}
+@media (max-width:640px){
+  .vrow{position:relative}
+  .m1 svg.dynlink{color:var(--acc-l)}
+  .exarrow{display:none}
+  .exit{margin:30px 0 0 0;align-self:center}
+  .cvline{position:relative}
+  .cvline svg.dynlink{color:var(--acc-l)}
+  .cvgo .cvarrow{display:none}
+  .cvgo{margin-top:64px}
+}
+
 </style>
 </head>
 <body>
@@ -1490,6 +1503,44 @@ document.addEventListener('click',e=>{
   window.scrollTo({top:target(),behavior:reduce?'instant':'smooth'});
   setTimeout(()=>{ window.scrollTo({top:target(),behavior:'instant'}); const x=document.querySelector('#cf input'); if(x) x.focus({preventScroll:true}); }, reduce?0:900);
 },true);
+/* ---------- Phone: chalk arrows drawn between the real elements ---------- */
+function chalkLink(box, key, a, b, down){
+  let svg=box.querySelector('svg.dynlink[data-k="'+key+'"]');
+  if(!svg){ svg=document.createElementNS('http://www.w3.org/2000/svg','svg'); svg.setAttribute('class','dynlink'); svg.dataset.k=key; svg.setAttribute('aria-hidden','true');
+    svg.innerHTML='<path class="dl-l" fill="none" stroke="currentColor" stroke-width="2.6" stroke-dasharray="7 6" stroke-linecap="round" filter="url(#chalkf)"/><path class="dl-h" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" filter="url(#chalkf)"/>';
+    box.appendChild(svg); }
+  const B=box.getBoundingClientRect();
+  svg.setAttribute('width',B.width); svg.setAttribute('height',B.height); svg.setAttribute('viewBox',`0 0 ${B.width} ${B.height}`);
+  const s={x:a.x-B.left,y:a.y-B.top}, e={x:b.x-B.left,y:b.y-B.top}, c= down ? {x:e.x+(s.x-e.x)*.15, y:s.y+(e.y-s.y)*.1} : {x:s.x+(e.x-s.x)*.08, y:e.y-(e.y-s.y)*.05};
+  svg.querySelector('.dl-l').setAttribute('d',`M${s.x.toFixed(1)} ${s.y.toFixed(1)} Q${c.x.toFixed(1)} ${c.y.toFixed(1)} ${e.x.toFixed(1)} ${e.y.toFixed(1)}`);
+  const ang=Math.atan2(e.y-c.y,e.x-c.x), h=10;
+  const p1=`${(e.x-h*Math.cos(ang-.5)).toFixed(1)} ${(e.y-h*Math.sin(ang-.5)).toFixed(1)}`, p2=`${(e.x-h*Math.cos(ang+.5)).toFixed(1)} ${(e.y-h*Math.sin(ang+.5)).toFixed(1)}`;
+  svg.querySelector('.dl-h').setAttribute('d',`M${p1} L${e.x.toFixed(1)} ${e.y.toFixed(1)} L${p2}`);
+}
+function lastCharRect(el){
+  const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT); let n=null,t; while((t=w.nextNode())) if(t.textContent.trim()) n=t;
+  if(!n) return el.getBoundingClientRect(); const txt=n.textContent.replace(/\s+$/,''); const r=document.createRange(); r.setStart(n,txt.length-1); r.setEnd(n,txt.length); return r.getBoundingClientRect();
+}
+const phoneQ=matchMedia('(max-width:640px)');
+function drawLinks(){
+  document.querySelectorAll('svg.dynlink').forEach(s=>{ if(!phoneQ.matches) s.remove(); });
+  if(!phoneQ.matches) return;
+  document.querySelectorAll('.vrow').forEach(v=>{
+    const em=v.querySelector('.verdict em'), x=v.querySelector('.exx'); if(!em||!x) return;
+    const p=lastCharRect(em), X=x.getBoundingClientRect();
+    chalkLink(v,'exit',{x:p.right+3,y:p.bottom-2},{x:X.right+6,y:X.top+X.height/2});
+  });
+  document.querySelectorAll('.cvline').forEach(cv=>{
+    const ci=cv.querySelector('.circ svg'), bt=cv.querySelector('.cvbtn'); if(!ci||!bt) return;
+    const C=ci.getBoundingClientRect(), T=bt.getBoundingClientRect();
+    chalkLink(cv,'cv',{x:C.left+C.width*.5,y:C.bottom-6},{x:Math.min(T.right-24,C.left+C.width*.5-40),y:T.top-12},true);
+  });
+}
+let dlRaf=0; const dlSoon=()=>{ if(dlRaf) return; dlRaf=requestAnimationFrame(()=>{dlRaf=0; drawLinks();}); };
+['scroll','resize'].forEach(ev=>addEventListener(ev,dlSoon,{passive:true}));
+phoneQ.addEventListener && phoneQ.addEventListener('change',dlSoon);
+new MutationObserver(()=>setTimeout(dlSoon,60)).observe($app,{childList:true});
+if(document.fonts) document.fonts.ready.then(dlSoon); addEventListener('load',dlSoon);
 
 render();
 </script>
