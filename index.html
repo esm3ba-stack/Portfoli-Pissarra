@@ -1010,6 +1010,7 @@ const P = [
   });
   ['aboutLabel','contactLabel','projLabel','about','gallery','baL'].forEach(k=>{UI[k]=fix(UI[k]);});
 })();
+(function(){ for(const sl of ['devant','erasmus-vasto']){ const i=P.findIndex(p=>p.slug===sl); if(i>=0) P.splice(i,1); } })();
 const T = (v,l)=> Array.isArray(v) ? pick(v,l) : v;
 const title = (p,l)=> T(p.title,l);
 
