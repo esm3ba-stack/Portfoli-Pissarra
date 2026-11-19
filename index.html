@@ -1951,7 +1951,7 @@ function initRomo(root, L){
   const cap=root.querySelector('.rxcap'), pl=root.querySelector('.rxpl'), bar=root.querySelector('.rxbar'), fill=root.querySelector('.rxfill');
   const tm=root.querySelector('.rxtime'), big=root.querySelector('.rxbig'), shade=root.querySelector('.rxcut');
   const W=200,H=530; cv.width=W; cv.height=H;
-  const tex=FL.map(f=>{ const i=new Image(); i.src=`img/cv/can_${f.k}.webp`; return i; });
+  const tex=FL.map(f=>{ const i=new Image(); i.src=`img/cv/can_${f.k}.webp?v=2`; return i; });
   const mask=new Image(); mask.src='img/cv/can_mask.png';
   // condensation drops, drawn once
   const drops=document.createElement('canvas'); drops.width=W; drops.height=H; { const d=drops.getContext('2d'); let sd=7; const rnd=()=>{sd=(sd*9301+49297)%233280; return sd/233280;};
