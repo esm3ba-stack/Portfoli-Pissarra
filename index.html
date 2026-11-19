@@ -708,6 +708,17 @@ svg.dynlink{position:absolute;left:0;top:0;pointer-events:none;overflow:visible;
   .cvgo{margin-top:64px}
 }
 
+/* ================= round 14: scroll-told landing intro ================= */
+.intro{position:relative}
+body.intro-on .istage{position:sticky;top:var(--navh,72px);height:calc(100vh - var(--navh,72px));height:calc(100dvh - var(--navh,72px));overflow:hidden}
+body.intro-on .istage .hero{transform-origin:0 0;will-change:transform;height:100%;min-height:0;box-sizing:border-box}
+body.intro-on .intro .br path,body.intro-on .intro .leaves li,body.intro-on .intro .node,body.intro-on .intro .vrow,body.intro-on .intro .sqp{transition:opacity .12s linear}
+.ihint{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);font-weight:600;font-size:14px;color:var(--soft);pointer-events:none;display:flex;gap:6px;align-items:center}
+.ihint i{font-style:normal;display:inline-block;animation:bob 1.6s ease-in-out infinite}
+body:not(.intro-on) .ihint{display:none}
+/* phone: the final view is the whole stacked landing, scaled to fit */
+@media (max-width:860px){ body.intro-on .istage{height:auto;min-height:calc(100dvh - var(--navh,72px))} body.intro-on .istage .hero{height:auto} }
+
 </style>
 </head>
 <body>
@@ -795,6 +806,7 @@ const UI = {
   bbPrev:["Diapositiva anterior","Diapositiva anterior","Previous slide"], bbNext:["Diapositiva siguiente","Diapositiva següent","Next slide"],
   bbBig:["Verlo en grande","Fes-ho gran","View large"], bbClose:["Cerrar","Tanca","Close"],
   fWhere:["Empordà (el Alt)","Empordà (l'Alt)","Empordà (the Alt one)"],
+  scrollHint:["Desliza","Llisca","Scroll"],
   k3In:["Acercar","Apropar","Zoom in"], k3Out:["Alejar","Allunyar","Zoom out"]
 };
 const EDU=[
@@ -1084,8 +1096,8 @@ function portraitHTML(){
 }
 function homeHTML(l){
   return `<main>
-  <section class="wrap hero" id="top">${mapsHTML(l)}
-    ${portraitHTML()}</section>
+  <div class="intro" id="intro"><div class="istage"><section class="wrap hero" id="top">${mapsHTML(l)}
+    ${portraitHTML()}</section><span class="ihint" aria-hidden="true">${pick(UI.scrollHint,l)} <i>↓</i></span></div></div>
   ${ctaHTML(l)}</main>`;
 }
 function projectsHTML(l){
@@ -1491,7 +1503,7 @@ function goUp(){
   lockSpy(200); setTimeout(()=>{goingUp=false; upAcc=0;},500);
 }
 function collectRV(){
-  RV=[...$app.querySelectorAll('.pgsec .map, .pgsec .vrow, .pgsec .cvline, .pgsec .bigcta, .pgsec h1, .pgsec h2, .pgsec p, .pgsec figure, .pgsec .facts > div, .pgsec .sec, .pgsec .items li, .pgsec .fld, .pgsec .fact, .pgsec .cside, .pgsec .k3, .pgsec .ctal, .pgsec .links, .nextpg h1, .nextpg h2, .nextpg p, .nextpg figure')].filter(el=>!el.closest('.sc') && !el.closest('.sqp'));
+  RV=[...$app.querySelectorAll('.pgsec .map, .pgsec .vrow, .pgsec .cvline, .pgsec .bigcta, .pgsec h1, .pgsec h2, .pgsec p, .pgsec figure, .pgsec .facts > div, .pgsec .sec, .pgsec .items li, .pgsec .fld, .pgsec .fact, .pgsec .cside, .pgsec .k3, .pgsec .ctal, .pgsec .links, .nextpg h1, .nextpg h2, .nextpg p, .nextpg figure')].filter(el=>!el.closest('.sc') && !el.closest('.sqp') && !el.closest('.intro'));
 }
 // cursor light on every project hero
 (function phLoop(){ document.querySelectorAll('.ph').forEach(el=>{ const r=el.getBoundingClientRect(); if(r.bottom<0||r.top>innerHeight) return; el.style.setProperty('--mx',(cx-r.left)+'px'); el.style.setProperty('--my',(cy-r.top)+'px'); }); requestAnimationFrame(phLoop); })();
@@ -1510,9 +1522,9 @@ function chalkLink(box, key, a, b, down){
   if(!svg){ svg=document.createElementNS('http://www.w3.org/2000/svg','svg'); svg.setAttribute('class','dynlink'); svg.dataset.k=key; svg.setAttribute('aria-hidden','true');
     svg.innerHTML='<path class="dl-l" fill="none" stroke="currentColor" stroke-width="2.6" stroke-dasharray="7 6" stroke-linecap="round" filter="url(#chalkf)"/><path class="dl-h" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" filter="url(#chalkf)"/>';
     box.appendChild(svg); }
-  const B=box.getBoundingClientRect();
-  svg.setAttribute('width',B.width); svg.setAttribute('height',B.height); svg.setAttribute('viewBox',`0 0 ${B.width} ${B.height}`);
-  const s={x:a.x-B.left,y:a.y-B.top}, e={x:b.x-B.left,y:b.y-B.top}, c= down ? {x:e.x+(s.x-e.x)*.15, y:s.y+(e.y-s.y)*.1} : {x:s.x+(e.x-s.x)*.08, y:e.y-(e.y-s.y)*.05};
+  const B=box.getBoundingClientRect(), k=(B.width/box.offsetWidth)||1, bw=box.offsetWidth, bh=box.offsetHeight;
+  svg.setAttribute('width',bw); svg.setAttribute('height',bh); svg.setAttribute('viewBox',`0 0 ${bw} ${bh}`);
+  const s={x:(a.x-B.left)/k,y:(a.y-B.top)/k}, e={x:(b.x-B.left)/k,y:(b.y-B.top)/k}, c= down ? {x:e.x+(s.x-e.x)*.15, y:s.y+(e.y-s.y)*.1} : {x:s.x+(e.x-s.x)*.08, y:e.y-(e.y-s.y)*.05};
   svg.querySelector('.dl-l').setAttribute('d',`M${s.x.toFixed(1)} ${s.y.toFixed(1)} Q${c.x.toFixed(1)} ${c.y.toFixed(1)} ${e.x.toFixed(1)} ${e.y.toFixed(1)}`);
   const ang=Math.atan2(e.y-c.y,e.x-c.x), h=10;
   const p1=`${(e.x-h*Math.cos(ang-.5)).toFixed(1)} ${(e.y-h*Math.sin(ang-.5)).toFixed(1)}`, p2=`${(e.x-h*Math.cos(ang+.5)).toFixed(1)} ${(e.y-h*Math.sin(ang+.5)).toFixed(1)}`;
@@ -1542,6 +1554,73 @@ let dlRaf=0; const dlSoon=()=>{ if(dlRaf) return; dlRaf=requestAnimationFrame(()
 phoneQ.addEventListener && phoneQ.addEventListener('change',dlSoon);
 new MutationObserver(()=>setTimeout(dlSoon,60)).observe($app,{childList:true});
 if(document.fonts) document.fonts.ready.then(dlSoon); addEventListener('load',dlSoon);
+
+/* ---------- Landing intro: the camera walks through the two maps, then pulls back ---------- */
+const IN={el:null,hero:null,steps:[],len:0,p:-1};
+function introBuild(){
+  const intro=document.getElementById('intro'); IN.el=intro; IN.hero=intro?intro.querySelector('.hero'):null;
+  if(!intro||!IN.hero) return;
+  document.body.classList.toggle('intro-on',!reduce);
+  if(reduce){ intro.style.height=''; IN.hero.style.transform=''; return; }
+  const m1=intro.querySelector('.m1'), m2=intro.querySelector('.m2');
+  const arrows=m=>{ const ps=[...m.querySelectorAll('.br path')]; return [0,1,2].map(i=>ps.slice(i*2,i*2+2)); };
+  const a1=arrows(m1), a2=arrows(m2), l1=[...m1.querySelectorAll('.leaves li')], l2=[...m2.querySelectorAll('.leaves li')];
+  // step: what to frame, what appears with it
+  IN.steps=[
+    {f:m1.querySelector('.node'), show:[m1.querySelector('.node')]},
+    ...[0,1,2].map(i=>({f:l1[i], show:[...a1[i],l1[i]]})),
+    {f:m1.querySelector('.vrow'), show:[m1.querySelector('.vrow')]},
+    {f:m2.querySelector('.node'), show:[m2.querySelector('.node')]},
+    ...[0,1,2].map(i=>({f:l2[i], show:[...a2[i],l2[i]]})),
+    {f:null, show:[intro.querySelector('.sqp')]}
+  ];
+  introMeasure();
+}
+function introMeasure(){
+  if(!IN.hero||reduce) return;
+  const st=IN.el.querySelector('.istage'), H=IN.hero;
+  document.documentElement.style.setProperty('--navh',navH()+'px');
+  H.style.transform='none';
+  const HB=H.getBoundingClientRect();
+  IN.W=st.clientWidth; IN.H=Math.min(st.clientHeight, innerHeight-navH());
+  const phone=innerWidth<=640;
+  IN.steps.forEach((s,i)=>{
+    if(!s.f){ s.cx=null; s.sc=1; return; }
+    const r=s.f.getBoundingClientRect(); s.cx=r.left-HB.left+r.width/2; s.cy=r.top-HB.top+r.height/2;
+    const fill = i===0||i===5 ? (phone?.8:.62) : (i===4 ? .78 : (phone?.62:.5));
+    s.sc=Math.max(1,Math.min((phone?2.2:2.6), fill*IN.W/r.width, .42*IN.H/r.height));
+  });
+  IN.len=Math.max(260,innerHeight*.55);
+  IN.el.style.height=(st.offsetHeight+IN.len*(IN.steps.length-1)+innerHeight*.25)+'px';
+  IN.p=-1; introFrame();
+}
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+function camOf(s){ return s.cx===null ? {x:0,y:0,s:1} : {s:s.sc, x:IN.W/2-s.cx*s.sc, y:IN.H/2-s.cy*s.sc}; }
+function introFrame(){
+  if(!IN.hero||reduce||!IN.steps.length) return;
+  const top=IN.el.getBoundingClientRect().top+scrollY;
+  const p=Math.max(0,Math.min(IN.steps.length-1,(scrollY-top)/IN.len));
+  if(Math.abs(p-IN.p)<.0005) return; IN.p=p;
+  const k=Math.floor(p), f=p-k, t=ease(Math.min(1,f/.62));
+  const A=camOf(IN.steps[k]), B=camOf(IN.steps[Math.min(k+1,IN.steps.length-1)]);
+  const last=IN.steps.length-1;
+  let s,x,y;
+  if(k+1===last){ // pull back: interpolate in log-scale so the zoom-out feels even
+    const ls=Math.exp(Math.log(A.s)+(Math.log(B.s)-Math.log(A.s))*t); s=ls;
+    const cxA=(IN.W/2-A.x)/A.s, cyA=(IN.H/2-A.y)/A.s, cxB=(IN.W/2-B.x)/B.s, cyB=(IN.H/2-B.y)/B.s;
+    const cx=cxA+(cxB-cxA)*t, cy=cyA+(cyB-cyA)*t; x=IN.W/2-cx*s; y=IN.H/2-cy*s;
+  } else { s=A.s+(B.s-A.s)*t; x=A.x+(B.x-A.x)*t; y=A.y+(B.y-A.y)*t; }
+  IN.hero.style.transform=`translate(${x.toFixed(1)}px,${y.toFixed(1)}px) scale(${s.toFixed(4)})`;
+  IN.steps.forEach((st,i)=>{ const o = i===0 ? 1 : Math.max(0,Math.min(1,(p-(i-1)-.3)/.45));
+    st.show.forEach(el=>{ el.style.opacity=o.toFixed(3); el.style.pointerEvents=o>.6?'':'none'; }); });
+  const hint=IN.el.querySelector('.ihint'); if(hint) hint.style.opacity=Math.max(0,1-p*2.5).toFixed(3);
+  IN.el.classList.toggle('done',p>=last-.001);
+}
+addEventListener('scroll',()=>requestAnimationFrame(introFrame),{passive:true});
+addEventListener('resize',()=>{ clearTimeout(IN.rt); IN.rt=setTimeout(introMeasure,120); });
+new MutationObserver(()=>{ if(document.getElementById('intro')!==IN.el || !IN.el) setTimeout(introBuild,30); }).observe($app,{childList:true,subtree:true});
+if(document.fonts) document.fonts.ready.then(()=>introMeasure()); addEventListener('load',()=>introMeasure());
+setTimeout(introBuild,0);
 
 render();
 </script>
