@@ -1869,8 +1869,8 @@ const SQUAD=[[1,'Rubén Blanco','POR'],[13,'Paulo Gazzaniga','POR'],[22,'Marc-An
  [2,'Hugo Rincón','DEF'],[4,'Arnau Martínez','DEF'],[12,'Vitor Reis','DEF'],[16,'Alejandro Francés','DEF'],[17,'Daley Blind','DEF'],[24,'Álex Moreno','DEF'],[27,'Pol Arnau','DEF'],[28,'Gibi','DEF'],[31,'Antonio Salguero','DEF'],
  [5,'David López','MIG'],[6,'Donny van de Beek','MIG'],[8,'Fran Beltrán','MIG'],[11,'Thomas Lemar','MIG'],[14,'Claudio Echeverri','MIG'],[15,'Viktor Tsyhankov','MIG'],[18,'Azzedine Ounahi','MIG'],[20,'Axel Witsel','MIG'],[21,'Bryan Gil','MIG'],[23,'Iván Martín','MIG'],[29,'Lass Kourouma','MIG'],
  [3,'Joel Roca','DAV'],[7,'Cristhian Stuani','DAV'],[9,'Abel Ruiz','DAV'],[19,'Vladyslav Vanat','DAV'],[30,'Javier Sarasa','DAV'],[32,'Juan Arango','DAV'],[44,'Papa Dame Ba','DAV']];
-const PH=new Set([1,2,3,4,5,6,7,8,9,11,12,13,14,15,16,17,18,19,20]);
-const AV=(n,cls)=>PH.has(n)?`<i class="${cls} gph"><img src="img/cv/pl/${n}.webp" alt="" loading="lazy"><b>${n}</b></i>`:`<i class="${cls}">${n}</i>`;
+const PH=new Set(SQUAD.map(p=>p[0]));
+const AV=(n,cls)=>PH.has(n)?`<i class="${cls} gph"><img src="img/cv/pl/${n}.webp?v=2" alt="" loading="lazy"><b>${n}</b></i>`:`<i class="${cls}">${n}</i>`;
 const POSN={POR:'Porter',DEF:'Defensa',MIG:'Migcampista',DAV:'Davanter'};
 // votes the "rest of the stand" already cast (fixed, so the demo is repeatable)
 const BASEV=Object.fromEntries(SQUAD.map(([n])=>[n,({18:212,7:168,15:141,20:97,19:120,23:88,3:74,4:66,13:58})[n]||(8+(n*37)%31)]));
