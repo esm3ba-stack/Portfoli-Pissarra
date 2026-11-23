@@ -970,6 +970,18 @@ body.intro-on .intro{touch-action:pan-y}
   background-image:linear-gradient(90deg,var(--bf,#D21034) 0,var(--bf,#D21034) calc(1.2px + 100% * var(--k,1)),#fff calc(1.2px + 100% * var(--k,1)),#fff 100%)}
 .gbat.low{--bf:#5A4300}.gbat.chg{--bf:#0B3D18}
 
+/* round 22: La Grada — reds soften while the pointer is over a button */
+.gcard,.gviu{transition:background-color .2s ease,transform .1s}
+.g2 button,.g3 button,.gbtn{transition:background .2s,color .2s,border-color .2s,transform .1s}
+@media (hover:hover){
+  .gcard:hover{background:#DE5A6B}
+  .gviu:hover{background:#F7C0C8}
+  .gviu:hover span{color:#A50E25}
+  .gviu span{transition:color .2s}
+  .g2 button:hover,.g3 button:hover{border-color:#E37B88}
+  .gvote button:not(:disabled):hover{border-color:#E37B88}
+}
+
 </style>
 </head>
 <body>
