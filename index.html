@@ -990,6 +990,11 @@ body.intro-on .intro{touch-action:pan-y}
 /* round 24: "Fem comunitat" buttons fill with the card red on hover */
 @media (hover:hover){ .gb .g2 button:hover{background:#C8102E;border-color:#C8102E;color:#fff} }
 
+/* round 25: Romo — no player chrome while it plays; it comes back when paused (tap the video) or with keyboard focus */
+.cov-rx .rxui{transition:opacity .35s ease}
+.cov-rx:not(.paused) .rxui{opacity:0;pointer-events:none}
+.cov-rx:not(.paused) .rxui:focus-within{opacity:.92;pointer-events:auto}
+
 </style>
 </head>
 <body>
@@ -2291,8 +2296,8 @@ function initRomo(root, L){
   st.addEventListener('pointerdown',e=>{ if(e.target.closest('.rxui')) return; const r=cv.getBoundingClientRect();
     const onCan=e.clientX>r.left&&e.clientX<r.right&&e.clientY>r.top&&e.clientY<r.bottom;
     const hit=ps.find(p=>{ const b=p.e.getBoundingClientRect(); return +p.e.style.opacity>.3 && e.clientX>b.left&&e.clientX<b.right&&e.clientY>b.top&&e.clientY<b.bottom; });
-    if(hit){ hit.pop=.45; hit.vx+=(Math.random()-.5)*40; hit.vy-=18; hit.spin*=-3; kick(); return; }
-    if(onCan){ drag={x:e.clientX,s:spinU,lx:0,moved:false}; st.setPointerCapture(e.pointerId); st.classList.add('grab'); }
+    if(hit){ hit.pop=.45; hit.vx+=(Math.random()-.5)*40; hit.vy-=18; hit.spin*=-3; kick(); }
+    if(onCan&&!hit){ drag={x:e.clientX,s:spinU,lx:0,moved:false}; st.setPointerCapture(e.pointerId); st.classList.add('grab'); }
     else drag={tap:true};
   });
   st.addEventListener('pointerup',e=>{ if(!drag) return; const d=drag; drag=null; st.classList.remove('grab');
