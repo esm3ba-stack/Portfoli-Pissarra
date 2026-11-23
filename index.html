@@ -953,6 +953,13 @@ body.intro-on .intro{touch-action:pan-y}
 @keyframes hzedge{0%,100%{transform:translate(-50%,0)}30%{transform:translate(calc(-50% - 6px),0)}60%{transform:translate(calc(-50% + 6px),0)}}
 @media (max-width:860px){.ipager{bottom:calc(14px + env(safe-area-inset-bottom,0px))}.ipager button{width:40px;height:40px}}
 
+/* round 21: active nav item — yellow line drawn left to right */
+.nav-r .lk{position:relative}
+.nav-r .lk[aria-current="page"]{text-decoration:none}
+.nav-r .lk[aria-current="page"]::after{content:"";position:absolute;left:0;right:0;bottom:-7px;height:2px;border-radius:2px;background:var(--acc-l);transform-origin:0 50%;animation:navline .5s cubic-bezier(.22,.7,.2,1) both}
+@keyframes navline{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media (prefers-reduced-motion:reduce){.nav-r .lk[aria-current="page"]::after{animation:none}}
+
 </style>
 </head>
 <body>
