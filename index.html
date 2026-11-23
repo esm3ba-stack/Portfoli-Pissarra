@@ -919,6 +919,18 @@ u[data-b].on{display:block}
 .grow i.gav{width:30px;height:30px;line-height:30px;font-size:12px;background:#fff;color:#C8102E;font-family:var(--f-head);font-weight:800;font-style:normal;text-align:center}
 .grow i.gav.gph b{min-width:15px;height:15px;font-size:8.5px;line-height:15px;right:-5px;bottom:-3px}
 
+/* round 18: hierarchy — section title > subtitle > text */
+.sech{font-family:var(--f-head);font-weight:800;font-size:clamp(44px,6.6vw,96px);line-height:.95;letter-spacing:-.045em;margin:0;color:var(--ink)}
+.secsub{font-family:var(--f-body);font-weight:600;font-style:italic;font-size:clamp(22px,2.6vw,38px);line-height:1.18;letter-spacing:-.01em;margin:clamp(12px,1.4vw,20px) 0 0;max-width:30ch;color:var(--ink);text-wrap:balance}
+.ctph .secsub{max-width:36ch}
+.about .wrap>.sech{grid-column:1/-1;margin-bottom:clamp(4px,1vw,12px)}
+.about .wrap>.sech+div{grid-column:1/-1}
+.about .secsub{margin-top:0}
+.about .abp{margin-top:14px}
+#doc.jumped{animation:jumpin .35s ease both}
+@keyframes jumpin{from{opacity:.0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){#doc.jumped{animation:none}}
+
 </style>
 </head>
 <body>
@@ -1255,7 +1267,7 @@ function navHTML(l,page){
 const ctaHTML=(l)=>`<section class="wrap cta"><a class="ctal" href="${href(l,'contact')}"><h2 class="display">${pick(UI.ctaH,l)} <span class="ar">↓</span></h2></a>
     <div class="foot mono"><span style="font-weight:700">POL ESTEBA</span><span>Vilafant, Girona</span><span>© 2026</span></div></section>`;
 function contactHTML(l){
-  return `<main><section class="wrap phd ctph"><span class="mono">/ ${pick(UI.contactLabel,l)}</span><h1 class="display">${pick(UI.contactH,l)}</h1>
+  return `<main><section class="wrap phd ctph"><h2 class="display sech">${pick(UI.nav[2],l)}</h2><p class="secsub">${pick(UI.contactH,l)}</p>
     <button type="button" class="bigcta" id="gocf"><span class="bct">${pick(UI.ctaContact,l)}</span> <span class="ar" aria-hidden="true">↓</span></button></section>
   <section class="wrap cform">
     <form id="cf" novalidate>
@@ -1346,13 +1358,13 @@ function projectsHTML(l){
         <div><h3 class="display">${title(p,l)}</h3><div class="h">${pick(p.head,l)}</div><p class="d">${pick(p.short,l)}</p>
         <span class="link">${pick(UI.view,l)} <span>↗</span></span></div></a>
       <div class="imw">${coverHTML(p,l)}<i class="bar" style="background:${p.color}"></i></div></article>`;}).join('');
-  return `<main><section class="wrap phd projects"><span class="mono">${pick(UI.projLabel,l)}</span><h2 class="display">${pick(UI.projH,l)}</h2></section>
+  return `<main><section class="wrap phd projects"><h2 class="display sech">${pick(UI.nav[0],l)}</h2><p class="secsub">${pick(UI.projH,l)}</p></section>
   <section class="wrap projects" style="padding-top:0"><div class="stack" id="stack">${stack}</div></section></main>`;
 }
 function aboutHTML(l){
   const rows=(arr)=>arr.map(r=>`<div class="cvr"><span class="y">${r[0]}</span><b>${pick(r[1],l)}</b><span>${pick(r[2],l)}</span></div>`).join('');
-  const intro = `<h1 class="display abh">${pick(UI.aboutH,l)}</h1><p class="abp">${pick(UI.aboutP,l)}</p>`;
-  return `<main><section class="about"><div class="wrap"><div class="mono">${pick(UI.aboutLabel,l)}</div>
+  const intro = `<p class="secsub">${pick(UI.aboutH,l)}</p><p class="abp">${pick(UI.aboutP,l)}</p>`;
+  return `<main><section class="about"><div class="wrap"><h2 class="display sech">${pick(UI.nav[1],l)}</h2>
     <div>${intro}
     <div class="cvline"><p class="cvt">${pick(UI.cvLine,l)} <span class="circ">CV<svg viewBox="0 0 120 70" preserveAspectRatio="none" aria-hidden="true"><path d="M70 7 C 30 2 6 16 8 36 C 10 58 52 66 84 60 C 112 54 118 30 100 15 C 86 4 58 4 40 9" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" filter="url(#chalkf)"/></svg></span>.</p>
       <div class="cvgo"><svg class="cvarrow" viewBox="0 0 300 104" aria-hidden="true"><path d="M4 22 C 96 -2 152 14 150 86" fill="none" stroke="currentColor" stroke-width="3.2" stroke-dasharray="10 9" stroke-linecap="round" filter="url(#chalkf)"/><path d="M137 76 L150 97 L163 76" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#chalkf)"/></svg>
@@ -1702,8 +1714,9 @@ function render(){
   } else setNav(s.page);
   if(smooth) return;                      // the caller places the scroll
   const y = s.page==='home' ? 0 : secTop(s.page);
-  window.scrollTo({top:Math.max(0,y),behavior:(fresh||reduce)?'instant':'smooth'});
-  lockSpy(fresh ? 150 : 1100);
+  window.scrollTo({top:Math.max(0,y),behavior:'instant'});
+  if(!fresh && !reduce){ const dc=document.getElementById('doc'); if(dc){ dc.classList.remove('jumped'); void dc.offsetWidth; dc.classList.add('jumped'); } }
+  lockSpy(fresh ? 150 : 300);
 }
 // keep the landing spot right once fonts and images have settled (only if the visitor hasn't scrolled yet)
 const settle=()=>{ if(userMoved || curDoc==='en' || state.page==='home') return; window.scrollTo({top:Math.max(0,secTop(state.page)),behavior:'instant'}); lockSpy(150); };
