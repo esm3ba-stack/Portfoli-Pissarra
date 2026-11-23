@@ -965,6 +965,10 @@ body.intro-on .intro{touch-action:pan-y}
   .nav-r .lk:not([aria-current="page"])::after{content:"";position:absolute;left:0;right:0;bottom:-7px;height:2px;border-radius:2px;background:var(--acc-l);transform:scaleX(0);transform-origin:0 50%;transition:transform .35s cubic-bezier(.22,.7,.2,1)}
   .nav-r .lk:not([aria-current="page"]):hover::after{transform:scaleX(1)}
 }
+/* battery number readable at any level: one number, coloured over the fill and white over the empty part */
+.gbat b{z-index:2;color:transparent;-webkit-background-clip:text;background-clip:text;
+  background-image:linear-gradient(90deg,var(--bf,#D21034) 0,var(--bf,#D21034) calc(1.2px + 100% * var(--k,1)),#fff calc(1.2px + 100% * var(--k,1)),#fff 100%)}
+.gbat.low{--bf:#5A4300}.gbat.chg{--bf:#0B3D18}
 
 </style>
 </head>
@@ -975,8 +979,8 @@ body.intro-on .intro{touch-action:pan-y}
 <div id="app"></div>
 
 <script>
-const IMG = {"siesta": "img/066b1e4923.jpg", "g_a": "img/b14b63b907.jpg", "vasto_a4": "img/1989d74d45.jpg", "devant_cover": "img/51bfd8de8b.jpg", "kc_back": "img/9e25468492.webp", "sp_merino": "img/b151f6518d.jpg", "mac_front": "img/58fcee9d31.jpg", "can1": "img/f4788951f3.jpg", "kc_front": "img/6c17c82edb.webp", "romo_before": "img/25fed124b5.jpg", "puro_back": "img/9a09e36722.jpg", "g_b": "img/45000a8788.jpg", "sp_betis": "img/e2d69ff7f1.jpg", "puro_front": "img/34a53f0222.jpg", "mac_back": "img/7e2bace994.jpg", "macchia_cover": "img/e98e93575e.jpg", "g_c": "img/e1c6ccb85d.jpg", "pol": "img/8615c7f028.jpg", "puro_cover": "img/db00dc3e3b.jpg", "g_d": "img/2b609f464d.jpg", "sp_dejong": "img/241a4c9f05.jpg", "sp_lamine": "img/7e25082ed4.jpg", "sp_pedri": "img/1e59ecbb76.jpg", "sp_moreno": "img/4b5f7bf21b.jpg", "sp_ounahi": "img/8736d90cf6.jpg", "sp_fermin": "img/c6baff0b14.jpg", "kc_edge": "img/bb10432fa5.png", "vasto_cover": "img/ef87063ade.jpg", "g_e": "img/d1648b2cc1.jpg", "parking": "img/efc45cf3ab.jpg", "devant_logo": "img/1b5fe99b68.png", "grada_card": "img/a3625fc482.jpg", "sport_cover": "img/e30a4e432c.jpg", "hosp_cover": "img/3ab1ce85bd.jpg", "grada_hero": "img/ac319bbdaf.jpg", "romo_card": "img/310139d43e.jpg", "can2": "img/46ade80cab.jpg", "sp_hugo": "img/963a9b4376.jpg", "ingreso": "img/ea308ab4db.jpg", "can3": "img/e65bcdac55.jpg", "erasmus_cover": "img/erasmus_cover.jpg", "kc_hand": "img/kc_hand.jpg"};
-const IMGDIM = {"siesta":[900,1273],"g_a":[1000,562],"vasto_a4":[800,1132],"devant_cover":[1000,1000],"kc_back":[640,836],"sp_merino":[820,1160],"can1":[700,875],"kc_front":[640,836],"romo_before":[1284,1067],"puro_back":[1200,777],"g_b":[1000,562],"sp_betis":[820,1025],"puro_front":[1200,777],"g_c":[1000,562],"pol":[724,1086],"puro_cover":[1000,1000],"g_d":[1000,562],"sp_dejong":[787,1400],"sp_lamine":[820,1160],"sp_pedri":[820,1160],"sp_moreno":[820,1160],"sp_ounahi":[788,1400],"sp_fermin":[820,1160],"kc_edge":[640,836],"vasto_cover":[1000,1000],"g_e":[1000,562],"parking":[700,980],"devant_logo":[500,500],"grada_card":[900,1012],"sport_cover":[1000,1000],"hosp_cover":[1000,1000],"grada_hero":[1400,788],"romo_card":[1200,611],"can2":[700,875],"sp_hugo":[820,1160],"ingreso":[420,1400],"can3":[700,875],"erasmus_cover":[1600,1000],"kc_hand":[768,1024]};
+const IMG = {"siesta": "img/066b1e4923.jpg", "g_a": "img/b14b63b907.jpg", "vasto_a4": "img/1989d74d45.jpg", "devant_cover": "img/51bfd8de8b.jpg", "kc_back": "img/9e25468492.webp", "sp_merino": "img/b151f6518d.jpg", "mac_front": "img/58fcee9d31.jpg", "can1": "img/f4788951f3.jpg", "kc_front": "img/6c17c82edb.webp", "romo_before": "img/25fed124b5.jpg", "puro_back": "img/9a09e36722.jpg", "g_b": "img/45000a8788.jpg", "sp_betis": "img/e2d69ff7f1.jpg", "puro_front": "img/34a53f0222.jpg", "mac_back": "img/7e2bace994.jpg", "macchia_cover": "img/e98e93575e.jpg", "g_c": "img/e1c6ccb85d.jpg", "pol": "img/8615c7f028.jpg", "puro_cover": "img/db00dc3e3b.jpg", "g_d": "img/2b609f464d.jpg", "sp_dejong": "img/241a4c9f05.jpg", "sp_lamine": "img/7e25082ed4.jpg", "sp_pedri": "img/1e59ecbb76.jpg", "sp_moreno": "img/4b5f7bf21b.jpg", "sp_ounahi": "img/8736d90cf6.jpg", "sp_fermin": "img/fermin_2526.jpg", "kc_edge": "img/bb10432fa5.png", "vasto_cover": "img/ef87063ade.jpg", "g_e": "img/d1648b2cc1.jpg", "parking": "img/efc45cf3ab.jpg", "devant_logo": "img/1b5fe99b68.png", "grada_card": "img/a3625fc482.jpg", "sport_cover": "img/e30a4e432c.jpg", "hosp_cover": "img/3ab1ce85bd.jpg", "grada_hero": "img/ac319bbdaf.jpg", "romo_card": "img/310139d43e.jpg", "can2": "img/46ade80cab.jpg", "sp_hugo": "img/963a9b4376.jpg", "ingreso": "img/ea308ab4db.jpg", "can3": "img/e65bcdac55.jpg", "erasmus_cover": "img/erasmus_cover.jpg", "kc_hand": "img/kc_hand.jpg"};
+const IMGDIM = {"siesta":[900,1273],"g_a":[1000,562],"vasto_a4":[800,1132],"devant_cover":[1000,1000],"kc_back":[640,836],"sp_merino":[820,1160],"can1":[700,875],"kc_front":[640,836],"romo_before":[1284,1067],"puro_back":[1200,777],"g_b":[1000,562],"sp_betis":[820,1025],"puro_front":[1200,777],"g_c":[1000,562],"pol":[724,1086],"puro_cover":[1000,1000],"g_d":[1000,562],"sp_dejong":[787,1400],"sp_lamine":[820,1160],"sp_pedri":[820,1160],"sp_moreno":[820,1160],"sp_ounahi":[788,1400],"sp_fermin":[820,1159],"kc_edge":[640,836],"vasto_cover":[1000,1000],"g_e":[1000,562],"parking":[700,980],"devant_logo":[500,500],"grada_card":[900,1012],"sport_cover":[1000,1000],"hosp_cover":[1000,1000],"grada_hero":[1400,788],"romo_card":[1200,611],"can2":[700,875],"sp_hugo":[820,1160],"ingreso":[420,1400],"can3":[700,875],"erasmus_cover":[1600,1000],"kc_hand":[768,1024]};
 const LANGS = ['es','ca','en'];
 const pick = (a,l)=>a[LANGS.indexOf(l)];
 
@@ -1351,7 +1355,7 @@ function homeHTML(l){
     ${portraitHTML()}</section><span class="ihint" aria-hidden="true">${pick(UI.scrollHint,l)} <i>↓</i></span></div></div>
   </main>`;
 }
-const PCOL={"sp_lamine": "#233A76", "sp_ounahi": "#B7081B", "sp_hugo": "#133528", "sp_fermin": "#586E8F", "sp_pedri": "#B9A588", "sp_moreno": "#F2AE01", "sp_merino": "#D0233A", "sp_betis": "#1B8F62|#E52D37", "sp_dejong": "#578DD7"};
+const PCOL={"sp_lamine": "#233A76", "sp_ounahi": "#B7081B", "sp_hugo": "#133528", "sp_fermin": "#3F6FB5", "sp_pedri": "#B9A588", "sp_moreno": "#F2AE01", "sp_merino": "#D0233A", "sp_betis": "#1B8F62|#E52D37", "sp_dejong": "#578DD7"};
 const COVL={hint:["Demo interactiva · tócala","Demo interactiva · toca-la","Interactive demo · tap it"],
   play:["Reproducir","Reprodueix","Play"],pause:["Pausa","Pausa","Pause"],full:["Pantalla completa","Pantalla completa","Full screen"],exit:["Salir de pantalla completa","Surt de la pantalla completa","Exit full screen"],
   seek:["Progreso del vídeo","Progrés del vídeo","Video progress"],fan:["Carteles deportivos","Cartells esportius","Sports posters"]};
@@ -2095,7 +2099,7 @@ function initGrada(root){
     catch(_){ h=String(d.getHours()); m=String(d.getMinutes()).padStart(2,'0'); }
     clk.textContent=`${h}:${m}`; };
   tick(); setInterval(tick,1000);
-  const showBat=(b)=>{ const lv=Math.round(b.level*100); batN.textContent=lv; batF.style.width=Math.max(4,lv)+'%';
+  const showBat=(b)=>{ const lv=Math.round(b.level*100); batN.textContent=lv; bat.style.setProperty('--k',(Math.max(4,lv)/100).toFixed(3)); batF.style.width=Math.max(4,lv)+'%';
     bat.classList.toggle('chg',!!b.charging); bat.classList.toggle('low',!b.charging&&lv<=20); bat.classList.add('known'); bat.setAttribute('aria-label',`Bateria ${lv}%${b.charging?' (carregant)':''}`); };
   if(navigator.getBattery){ navigator.getBattery().then(b=>{ showBat(b); ['levelchange','chargingchange'].forEach(ev=>b.addEventListener(ev,()=>showBat(b))); }).catch(()=>{}); }
   // fit the phone into the cover
