@@ -1002,6 +1002,10 @@ body.intro-on .intro{touch-action:pan-y}
 .gbat.known b,.gbat.low b,.gbat.chg b{color:transparent}
 .gstat{padding-right:26px}
 
+/* round 27: real video mode for the Romo cover (switch on with RX_VIDEO) */
+.rxvid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:3;cursor:grab;background:#B9D46A}
+.cov-rx.isvid .rxcan,.cov-rx.isvid .rxside,.cov-rx.isvid .rxparts,.cov-rx.isvid .rxtable,.cov-rx.isvid .rxcap,.cov-rx.isvid .rxcut{display:none}
+
 </style>
 </head>
 <body>
@@ -2181,7 +2185,52 @@ const WIN={a:[0,2.5],b:[2.5,5.3],c:[5.2,8.3],d:[8.1,10]};
 function fmt(s){ s=Math.floor(s); return '0:'+String(s).padStart(2,'0'); }
 function hexmix(a,b,t){ const pa=parseInt(a.slice(1),16), pb=parseInt(b.slice(1),16); const c=(sh)=>Math.round(lerp((pa>>sh)&255,(pb>>sh)&255,t)); return `rgb(${c(16)},${c(8)},${c(0)})`; }
 
+/* Real video for the Romo cover. Leave null to keep the live animation; set to the file
+   (e.g. 'img/cv/romo_ai.mp4') once it exists and the cover switches to it automatically. */
+const RX_VIDEO=null;
+function initRomoVideo(root, L, src){
+  const st=root.querySelector('.rx'); root.classList.add('isvid');
+  const v=document.createElement('video'); v.className='rxvid'; v.src=src; v.muted=true; v.loop=true; v.playsInline=true; v.preload='auto';
+  v.setAttribute('playsinline',''); v.setAttribute('aria-label',root.querySelector('.rxcan')?.getAttribute('aria-label')||'');
+  st.insertBefore(v, st.querySelector('.rxcut'));
+  const pl=root.querySelector('.rxpl'), big=root.querySelector('.rxbig'), bar=root.querySelector('.rxbar'), fill=root.querySelector('.rxfill'), tm=root.querySelector('.rxtime');
+  let want=!RM, vis=false, scrub=false, drag=null;
+  const sync=()=>{ const p=want&&vis; if(p) v.play().catch(()=>{}); else v.pause(); root.classList.toggle('paused',!want); pl.setAttribute('aria-label',want?L.pause:L.play); };
+  const setPlay=p=>{ want=p; sync(); };
+  onVisible(root,x=>{ vis=x; sync(); });
+  const fmt=s=>'0:'+String(Math.floor(s)).padStart(2,'0');
+  // page colour follows the video: average of a tiny copy of the frame
+  const pc=document.createElement('canvas'); pc.width=pc.height=12; const pcx=pc.getContext('2d',{willReadFrequently:true});
+  let lastC=0;
+  const tick=(now)=>{ const D=v.duration||1; fill.style.width=(v.currentTime/D*100).toFixed(2)+'%'; tm.textContent=`${fmt(v.currentTime)} / ${fmt(D)}`;
+    if(now-lastC>200 && v.readyState>=2){ lastC=now; try{ pcx.drawImage(v,0,0,12,12); const d=pcx.getImageData(0,0,12,12).data; let r=0,g=0,b=0; for(let i=0;i<d.length;i+=4){r+=d[i];g+=d[i+1];b+=d[i+2];} const n=d.length/4; window.__RXC=[r/n,g/n,b/n].map(Math.round); }catch(_){} }
+    requestAnimationFrame(tick); };
+  requestAnimationFrame(tick);
+  pl.addEventListener('click',e=>{ e.stopPropagation(); setPlay(!want); });
+  big.addEventListener('click',e=>{ e.stopPropagation(); setPlay(true); });
+  const seekTo=f=>{ if(v.duration) v.currentTime=clamp(f,0,.999)*v.duration; };
+  bar.addEventListener('pointerdown',e=>{ e.stopPropagation(); scrub=true; bar.setPointerCapture(e.pointerId); const r=bar.getBoundingClientRect(); seekTo((e.clientX-r.left)/r.width); });
+  bar.addEventListener('pointermove',e=>{ if(!scrub) return; const r=bar.getBoundingClientRect(); seekTo((e.clientX-r.left)/r.width); });
+  bar.addEventListener('pointerup',()=>{ scrub=false; });
+  bar.addEventListener('keydown',e=>{ if(e.key==='ArrowRight') v.currentTime=Math.min((v.duration||1)-.05,v.currentTime+1); if(e.key==='ArrowLeft') v.currentTime=Math.max(0,v.currentTime-1); });
+  // the hidden part: drag sideways over the video to scrub it by hand; a plain tap pauses / plays
+  st.addEventListener('pointerdown',e=>{ if(e.target.closest('.rxui,.rxbig')) return; drag={x:e.clientX,t:v.currentTime,moved:false,was:want}; st.setPointerCapture(e.pointerId); });
+  st.addEventListener('pointermove',e=>{ if(!drag) return; const dx=e.clientX-drag.x; if(Math.abs(dx)>6){ if(!drag.moved){ drag.moved=true; v.pause(); st.classList.add('grab'); } const D=v.duration||1, r=st.getBoundingClientRect(); let nt=drag.t+dx/r.width*D; nt=((nt%D)+D)%D; v.currentTime=nt; } });
+  const up=()=>{ if(!drag) return; const d=drag; drag=null; st.classList.remove('grab'); if(d.moved) sync(); else setPlay(!want); };
+  st.addEventListener('pointerup',up); st.addEventListener('pointercancel',()=>{ drag=null; st.classList.remove('grab'); sync(); });
+  // fullscreen: same floating player as the animation
+  const fs=root.querySelector('.rxfs'); let ph=null;
+  const closeFs=()=>{ if(!ph) return; ph.parentNode.insertBefore(root,ph); ph.remove(); ph=null; document.querySelector('.rxov')?.remove(); root.classList.remove('full'); fs.setAttribute('aria-label',L.full); document.documentElement.classList.remove('rxlock'); sync(); };
+  fs.addEventListener('click',e=>{ e.stopPropagation(); if(ph) return closeFs();
+    ph=document.createComment('rx'); root.parentNode.insertBefore(ph,root);
+    const ov=document.createElement('div'); ov.className='rxov'; ov.addEventListener('click',closeFs); document.body.appendChild(ov); document.body.appendChild(root);
+    root.classList.add('full'); fs.setAttribute('aria-label',L.exit); document.documentElement.classList.add('rxlock'); sync(); });
+  addEventListener('keydown',e=>{ if(e.key==='Escape') closeFs(); });
+  addEventListener('hashchange',closeFs);
+  sync();
+}
 function initRomo(root, L){
+  if(RX_VIDEO) return initRomoVideo(root, L, RX_VIDEO);
   const st=root.querySelector('.rx'), cv=root.querySelector('.rxcan'), ctx=cv.getContext('2d');
   const bgEl=root.querySelector('.rxbg'), bg2=root.querySelector('.rxbg2'), table=root.querySelector('.rxtable'), side=[...root.querySelectorAll('.rxside')];
   const cap=root.querySelector('.rxcap'), pl=root.querySelector('.rxpl'), bar=root.querySelector('.rxbar'), fill=root.querySelector('.rxfill');
