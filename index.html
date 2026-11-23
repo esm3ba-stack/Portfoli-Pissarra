@@ -995,6 +995,13 @@ body.intro-on .intro{touch-action:pan-y}
 .cov-rx:not(.paused) .rxui{opacity:0;pointer-events:none}
 .cov-rx:not(.paused) .rxui:focus-within{opacity:.92;pointer-events:auto}
 
+/* round 26: charging bolt next to the battery, like iOS */
+.gbolt{display:none;width:7px;height:11px;fill:#fff;margin-left:-1px}
+.gico.chg .gbolt{display:block;animation:boltin .3s ease both}
+@keyframes boltin{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
+.gbat.known b,.gbat.low b,.gbat.chg b{color:transparent}
+.gstat{padding-right:26px}
+
 </style>
 </head>
 <body>
@@ -1390,7 +1397,7 @@ function coverHTML(p,l){
     const IC={home:'<path d="M4 11.5 12 5l8 6.5V20H14.5v-5h-5v5H4z"/>',grada:'<path d="M5 17v-6a3 3 0 0 1 3-3h1a3 3 0 0 1 3 3v6M12 17v-6a3 3 0 0 1 3-3h1a3 3 0 0 1 3 3v6M4 17h16"/>',cal:'<rect x="4.5" y="6" width="15" height="13.5" rx="2"/><path d="M4.5 10h15M8.5 4v4M15.5 4v4"/>',card:'<rect x="4" y="6" width="16" height="12" rx="2"/><path d="M7.5 10h4M7.5 13.5h6M15.5 10.5h1.5"/>',team:'<circle cx="12" cy="12" r="7.5"/><path d="M12 4.5v15M4.5 12h15"/>',more:'<circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/>'};
     return `<div class="cov cov-gr" data-cov="grada"><span class="covhint">${pick(COVL.hint,l)}</span>
       <div class="gp" role="group" aria-label="Prototip de l'app La Grada"><i class="gsd gsd-a"></i><i class="gsd gsd-u"></i><i class="gsd gsd-d"></i><i class="gsd gsd-p"></i><div class="gbz"><div class="gscr"><div class="gisl"></div>
-      <div class="gstat"><span class="gclk">9:41</span><span class="gico"><svg class="gsig" viewBox="0 0 18 12" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg class="gwifi" viewBox="0 0 16 12" aria-hidden="true"><path d="M8 11.6 5.6 9.2a3.4 3.4 0 0 1 4.8 0zM3.5 7.1a6.4 6.4 0 0 1 9 0l-1.4 1.4a4.4 4.4 0 0 0-6.2 0zM1.3 4.9a9.5 9.5 0 0 1 13.4 0l-1.4 1.4a7.5 7.5 0 0 0-10.6 0z"/></svg><span class="gbat" role="img" aria-label="Bateria"><i></i><b></b><em>⚡︎</em></span></span></div>
+      <div class="gstat"><span class="gclk">9:41</span><span class="gico"><svg class="gsig" viewBox="0 0 18 12" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg class="gwifi" viewBox="0 0 16 12" aria-hidden="true"><path d="M8 11.6 5.6 9.2a3.4 3.4 0 0 1 4.8 0zM3.5 7.1a6.4 6.4 0 0 1 9 0l-1.4 1.4a4.4 4.4 0 0 0-6.2 0zM1.3 4.9a9.5 9.5 0 0 1 13.4 0l-1.4 1.4a7.5 7.5 0 0 0-10.6 0z"/></svg><span class="gbat" role="img" aria-label="Bateria"><i></i><b></b></span><svg class="gbolt" viewBox="0 0 8 12" aria-hidden="true"><path d="M4.9 0 .4 6.7h3l-1 5.3L7.6 5H4.5z"/></svg></span></div>
       <div class="gview"></div><nav class="gtab">${tabs.map(([k,n])=>`<button type="button" data-tab="${k}"${k==='grada'?' aria-current="true"':''}><svg viewBox="0 0 24 24" aria-hidden="true">${IC[k]}</svg>${n}</button>`).join('')}</nav>
       <div class="gtoast" role="status" aria-live="polite"></div></div></div></div></div>`;
   }
@@ -2125,7 +2132,7 @@ function initGrada(root){
     clk.textContent=`${h}:${m}`; };
   tick(); setInterval(tick,1000);
   const showBat=(b)=>{ const lv=Math.round(b.level*100); batN.textContent=lv; bat.style.setProperty('--k',(Math.max(4,lv)/100).toFixed(3)); batF.style.width=Math.max(4,lv)+'%';
-    bat.classList.toggle('chg',!!b.charging); bat.classList.toggle('low',!b.charging&&lv<=20); bat.classList.add('known'); bat.setAttribute('aria-label',`Bateria ${lv}%${b.charging?' (carregant)':''}`); };
+    bat.classList.toggle('chg',!!b.charging); root.querySelector('.gico').classList.toggle('chg',!!b.charging); bat.classList.toggle('low',!b.charging&&lv<=20); bat.classList.add('known'); bat.setAttribute('aria-label',`Bateria ${lv}%${b.charging?' (carregant)':''}`); };
   if(navigator.getBattery){ navigator.getBattery().then(b=>{ showBat(b); ['levelchange','chargingchange'].forEach(ev=>b.addEventListener(ev,()=>showBat(b))); }).catch(()=>{}); }
   // fit the phone into the cover
   const fit=()=>{ const r=root.getBoundingClientRect(); if(!r.width) return;
