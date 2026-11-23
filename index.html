@@ -960,6 +960,11 @@ body.intro-on .intro{touch-action:pan-y}
 @keyframes navline{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @media (prefers-reduced-motion:reduce){.nav-r .lk[aria-current="page"]::after{animation:none}}
 .nav-r .lk[aria-current="page"],.nav-r .lk:hover{color:var(--acc-l)}
+/* hover: the same yellow line, drawn left to right while the pointer is on the item */
+@media (hover:hover){
+  .nav-r .lk:not([aria-current="page"])::after{content:"";position:absolute;left:0;right:0;bottom:-7px;height:2px;border-radius:2px;background:var(--acc-l);transform:scaleX(0);transform-origin:0 50%;transition:transform .35s cubic-bezier(.22,.7,.2,1)}
+  .nav-r .lk:not([aria-current="page"]):hover::after{transform:scaleX(1)}
+}
 
 </style>
 </head>
