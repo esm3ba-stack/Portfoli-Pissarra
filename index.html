@@ -1006,6 +1006,15 @@ body.intro-on .intro{touch-action:pan-y}
 .rxvid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:3;cursor:grab;background:#B9D46A}
 .cov-rx.isvid .rxcan,.cov-rx.isvid .rxside,.cov-rx.isvid .rxparts,.cov-rx.isvid .rxtable,.cov-rx.isvid .rxcap,.cov-rx.isvid .rxcut{display:none}
 
+/* round 28: status bar in three columns like iOS — left ear, Dynamic Island, right ear — so nothing slides under the camera */
+.gstat{display:grid!important;grid-template-columns:1fr 104px 1fr;padding:2px 10px 0!important}
+.gstat .gclk{grid-column:1;justify-self:center}
+.gstat .gico{grid-column:3;justify-self:center;gap:4px}
+.gsig{width:15px;height:10px}.gwifi{width:14px;height:10px}
+.gbat{width:24px;height:12px}
+.gbolt{display:block!important;visibility:hidden;width:6px;height:10px;margin-left:-1px}
+.gico.chg .gbolt{visibility:visible}
+
 </style>
 </head>
 <body>
